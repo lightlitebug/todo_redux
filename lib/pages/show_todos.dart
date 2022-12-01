@@ -6,6 +6,7 @@ import 'package:redux/redux.dart';
 import '../models/todo_model.dart';
 import '../redux/app_state.dart';
 import '../redux/todo_list/todo_list_action.dart';
+import 'todo_item.dart';
 
 class ShowTodos extends StatelessWidget {
   const ShowTodos({Key? key}) : super(key: key);
@@ -55,10 +56,7 @@ class ShowTodos extends StatelessWidget {
                   },
                 );
               },
-              child: Text(
-                todos[index].todoDesc,
-                style: const TextStyle(fontSize: 20.0),
-              ),
+              child: TodoItem(todo: todos[index]),
             );
           },
         );
