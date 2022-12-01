@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
 
 import 'pages/todos_page.dart';
+import 'redux/app_reducer.dart';
+import 'redux/app_state.dart';
+
+late final Store<AppState> store;
 
 void main() {
+  store = Store<AppState>(
+    reducer,
+    initialState: AppState.initial(),
+  );
   runApp(const MyApp());
 }
 
@@ -11,13 +21,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Todos',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return StoreProvider<AppState>(
+      store: store,
+      child: MaterialApp(
+        title: 'Todos',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const TodosPage(),
       ),
-      home: const TodosPage(),
     );
   }
 }
