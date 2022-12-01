@@ -5,6 +5,7 @@ import 'package:redux/redux.dart';
 
 import '../models/todo_model.dart';
 import '../redux/app_state.dart';
+import '../redux/todo_list/todo_list_action.dart';
 
 class ShowTodos extends StatelessWidget {
   const ShowTodos({Key? key}) : super(key: key);
@@ -25,21 +26,67 @@ class ShowTodos extends StatelessWidget {
             return const Divider(color: Colors.grey);
           },
           itemBuilder: (BuildContext context, int index) {
-            return Text(
-              todos[index].todoDesc,
-              style: const TextStyle(fontSize: 20.0),
+            return Dismissible(
+              key: ValueKey(todos[index].id),
+              background: showBackground(0),
+              secondaryBackground: showBackground(1),
+              onDismissed: (_) {
+                vm.deleteTodo(todos[index].id);
+              },
+              confirmDismiss: (_) {
+                return showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Are you sure?'),
+                      content: const Text('Do you really want to delete?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('NO'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('YES'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: Text(
+                todos[index].todoDesc,
+                style: const TextStyle(fontSize: 20.0),
+              ),
             );
           },
         );
       },
     );
   }
+
+  Widget showBackground(int direction) {
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      color: Colors.red,
+      alignment: direction == 0 ? Alignment.centerLeft : Alignment.centerRight,
+      child: const Icon(
+        Icons.delete,
+        size: 30.0,
+        color: Colors.white,
+      ),
+    );
+  }
 }
 
 class _ViewModel extends Equatable {
   final List<Todo> todos;
+  final void Function(String id) deleteTodo;
   const _ViewModel({
     required this.todos,
+    required this.deleteTodo,
   });
 
   @override
@@ -52,6 +99,7 @@ class _ViewModel extends Equatable {
         todoFilter: store.state.todoFilterState.todoFilter,
         searchTerm: store.state.todoSearchState.searchTerm,
       ),
+      deleteTodo: (String id) => store.dispatch(DeleteTodoAction(id: id)),
     );
   }
 
