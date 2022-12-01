@@ -5,9 +5,23 @@ import 'package:redux/redux.dart';
 
 import '../redux/app_state.dart';
 import '../redux/todo_search/todo_search_action.dart';
+import '../utils/debounce.dart';
 
-class SearchTodo extends StatelessWidget {
+class SearchTodo extends StatefulWidget {
   const SearchTodo({Key? key}) : super(key: key);
+
+  @override
+  State<SearchTodo> createState() => _SearchTodoState();
+}
+
+class _SearchTodoState extends State<SearchTodo> {
+  final debounce = Debounce(milliseconds: 1000);
+
+  @override
+  void dispose() {
+    debounce.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +38,9 @@ class SearchTodo extends StatelessWidget {
           ),
           onChanged: (String? searchTerm) {
             if (searchTerm != null) {
-              vm.searchTodo(searchTerm);
+              debounce.run(() {
+                vm.searchTodo(searchTerm);
+              });
             }
           },
         );
